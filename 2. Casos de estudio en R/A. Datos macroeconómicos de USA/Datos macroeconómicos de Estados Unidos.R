@@ -1,16 +1,16 @@
 #################### Series de Tiempo Multivariantes
-####### Caso de Estudio: Datos macroeconÃ³micos de Estados Unidos
+####### Caso de Estudio: Datos macroeconómicos de Estados Unidos
 ####### PASOS:
-#1. AnÃ¡lisis exploratorios de los datos.
+#1. Análisis exploratorios de los datos.
 #2. Dividir la serie en conjuntos de entrenamiento y prueba.
 #3. Prueba de estacionariedad.
 #4. Transformar la serie de entrenamiento si es necesario. 
 #5. Construir un modelo VAR sobre las series transformadas.
 #6. Causalidad de Granger.
-#7. DiagnÃ³stico del modelo.
-#8. Realizar pronÃ³sticos utilizando el modelo finalmente elegido.
-#9. TransformaciÃ³n inversa del pronÃ³stico a la escala original.
-#10. Realizar una evaluaciÃ³n del pronÃ³stico.
+#7. Diagnóstico del modelo.
+#8. Realizar pronósticos utilizando el modelo finalmente elegido.
+#9. Transformación inversa del pronóstico a la escala original.
+#10. Realizar una evaluación del pronóstico.
 
 
 # Antes vamos a ver un ejemplo de como generar un dataframe aleatorio
@@ -27,14 +27,14 @@ mymts = ts(xyz,
            
            start = c(1940, 4))
 
-# Herramientas exploratorias bÃ¡sicas
+# Herramientas exploratorias básicas
 plot(mymts)
 head(mymts)
 class(mymts)
 
 
-####### Cargando los datos reales "Datos macroeconÃ³micos de Estados Unidos"
-# Contiene dos variables de series de tiempo sobre la producciÃ³n (PIB - en inglÃ©s GDP) y el desempleo en los Estados Unidos.
+####### Cargando los datos reales "Datos macroeconómicos de Estados Unidos"
+# Contiene dos variables de series de tiempo sobre la producción (PIB - en inglés GDP) y el desempleo en los Estados Unidos.
 library(readr)
 dat = read_csv("blanchQua.csv")
 View(dat)
@@ -42,23 +42,29 @@ View(dat)
 class(dat)
 head(dat)
 
-####### Principales paquetes en R que tienen el modelo VAR - problema: en ambos la funciÃ³n se llama igual pero los parÃ¡metros son diferentes
+####### Principales paquetes en R que tienen el modelo VAR - problema: en ambos la función se llama igual pero los parámetros son diferentes
 install.packages("vars")
 install.packages("MTS")
 ??vars
 ??MTS
 
-# LibrerÃ­a para el test ADF de estacionariedad
+# Librería para el test ADF de estacionariedad
 library(tseries)
 
 
-####### AnÃ¡lisis exploratorio
+####### Análisis exploratorio
 # Convertir a objeto ts las dos series
+# Opción 1
+dat_ts = ts(dat, start = c(1948,2), frequency = 4) 
+# Aquí le estamos indicando que la frecuencia es trimestral ya que 
+# hay 4 trimestres en el año y que comienza desde el 2 trimestre
+
+# Opción 2
 gdp <- ts(dat$GDP, start = c(1948, 2), freq = 4)
 une <- ts(dat$U, start = c(1948, 2), freq = 4)
 
 
-# GrÃ¡fico con plot:
+# Gráfico con plot:
 dat.bv <- cbind(gdp, une)
 plot(dat.bv)
 
@@ -87,14 +93,14 @@ apply(X_train, 2, adf.test) #2 para especificar que lo queremos aplicar por colu
 
 
 ####### VAR modeling
-# IdentificaciÃ³n del orden del modelo
+# Identificación del orden del modelo
 library(vars)
 
 VARselect(X_train, type = "none", lag.max = 10)
 
 
 # Creando el modelo
-var.a <- vars::VAR(X_train,
+var.a <- vars::VAR(X_train,  #vars:: es para indicarle de que librería tomará la función VAR
                    
                    lag.max = 10,
                    
@@ -121,19 +127,19 @@ bv.serial
 # Posibles soluciones si es < 0.05:
 # a) Cambiar el orden del modelo.
 # b) Cambiar el tipo de modelo.
-# c) AÃ±adir otro paso de diferenciaciÃ³n o transformar con logaritmos.
+# c) Añadir otro paso de diferenciación o transformar con logaritmos.
 
 plot(bv.serial, names = "gdp")
 plot(bv.serial, names = "une")
 
-####### Forecasting usando el modelo VAR (Hallando los pronÃ³sticos)
+####### Forecasting usando el modelo VAR (Hallando los pronósticos)
 predictions <- predict(var.a, n.ahead = 10, ci = 0.95)
 plot(predictions, names = "gdp")
 
 predictions <- predict(var.a, n.ahead = 10, ci = 0.95)
 plot(predictions, names = "une")
 
-# Otro grÃ¡fico 
+# Otro gráfico 
 fanchart(predictions, names = "gdp")
 fanchart(predictions, names = "une")
 
@@ -148,7 +154,7 @@ cat('RMSE une: ', rmse)
 ###############################    Entrenando el modelo con todos los datos   ##################################33
 
 ####### VAR modeling
-# IdentificaciÃ³n del orden del modelo
+# Identificación del orden del modelo
 VARselect(dat.bv, type = "none", lag.max = 10)
 
 
@@ -180,38 +186,38 @@ bv.serial
 # Posibles soluciones si es < 0.05:
 # a) Cambiar el orden del modelo.
 # b) Cambiar el tipo de modelo.
-# c) AÃ±adir otro paso de diferenciaciÃ³n o transformar con logaritmos.
+# c) Añadir otro paso de diferenciación o transformar con logaritmos.
 
 plot(bv.serial, names = "gdp")
 plot(bv.serial, names = "une")
 
-####### Forecasting usando el modelo VAR (Hallando los pronÃ³sticos)
+####### Forecasting usando el modelo VAR (Hallando los pronósticos)
 predictions <- predict(var.a, n.ahead = 15, ci = 0.95)
 plot(predictions, names = "gdp")
 
 predictions <- predict(var.a, n.ahead = 15, ci = 0.95)
 plot(predictions, names = "une")
 
-# Otro grÃ¡fico 
+# Otro gráfico 
 fanchart(predictions, names = "gdp")
 fanchart(predictions, names = "une")
 
-### MÃ¡s en el futuro "n.ahead = 50" (perdemos precisiÃ³n)
+### Más en el futuro "n.ahead = 50" (perdemos precisión)
 predictions <- predict(var.a, n.ahead = 50, ci = 0.95)
 plot(predictions, names = "gdp")
 
 predictions <- predict(var.a, n.ahead = 50, ci = 0.95)
 plot(predictions, names = "une")
 
-# Otro grÃ¡fico 
+# Otro gráfico 
 fanchart(predictions, names = "gdp")
 fanchart(predictions, names = "une")
 
-### TamaÃ±o de los intervalos de confianza
+### Tamaño de los intervalos de confianza
 diff_IC_gdp=predictions$fcst$gdp[,3]-predictions$fcst$gdp[,2]
-plot(diff_IC_gdp, main="Longitud de los IC vs cantidad de pronÃ³sticos a futuro - GDP", xlab='Cantidad de datos pronosticados en el futuro', ylab='Longitud del IC')
+plot(diff_IC_gdp, main="Longitud de los IC vs cantidad de pronósticos a futuro - GDP", xlab='Cantidad de datos pronosticados en el futuro', ylab='Longitud del IC')
 
 diff_IC_une=predictions$fcst$gdp[,3]-predictions$fcst$une[,2]
-plot(diff_IC_une, main="Longitud de los IC vs cantidad de pronÃ³sticos a futuro - UNE", xlab='Cantidad de datos pronosticados en el futuro', ylab='Longitud del IC')
+plot(diff_IC_une, main="Longitud de los IC vs cantidad de pronósticos a futuro - UNE", xlab='Cantidad de datos pronosticados en el futuro', ylab='Longitud del IC')
 
 

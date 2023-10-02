@@ -1,21 +1,22 @@
 #################### Series de Tiempo Multivariantes
-####### Caso de Estudio: Datos macroecon贸micos mayor dimensi贸n
+####### Caso de Estudio: Datos macroecon髆icos mayor dimensi髇
 ####### PASOS:
-#1. An谩lisis exploratorios de los datos.
+#1. An醠isis exploratorios de los datos.
 #2. Dividir la serie en conjuntos de entrenamiento y prueba.
 #3. Prueba de estacionariedad.
 #4. Transformar la serie de entrenamiento si es necesario. 
 #5. Construir un modelo VAR sobre las series transformadas.
 #6. Causalidad de Granger.
-#7. Diagn贸stico del modelo.
-#8. Realizar pron贸sticos utilizando el modelo finalmente elegido.
-#9. Transformaci贸n inversa del pron贸stico a la escala original.
-#10. Realizar una evaluaci贸n del pron贸stico.
+#7. Diagn髎tico del modelo.
+#8. Realizar pron髎ticos utilizando el modelo finalmente elegido.
+#9. Transformaci髇 inversa del pron髎tico a la escala original.
+#10. Realizar una evaluaci髇 del pron髎tico.
 
 
-####### Cargando los datos reales "Datos macroecon贸micos mayor dimensi贸n"
+####### Cargando los datos reales "Datos macroecon髆icos mayor dimensi髇"
 # Contiene 20 variables 
 library(readr)
+setwd("~/Github projects/series-temporales-multivariantes/2. Casos de estudio en R/E. Datos macroecon髆icos de mayor dimensi髇")
 dat= read_csv("Mac_Ric.csv")
 View(dat)
 
@@ -27,12 +28,12 @@ plot(ts(dat$OPENY,start=c(1970,1),freq=4),ylab="OPENY") # openness - ratio to GD
 plot(ts(dat$FBYA,start=c(1970,1),freq=4),ylab="FBYA") # ratio of fiscal balance to GDP
 plot(ts(dat$NFAOFPY,start=c(1970,1),freq=4),ylab="NFAOFPY") # ratio to GDP of net foreign assets of the banking system
 
-########### Modelo VAR con variables ex贸genas
-#Variables end贸genas
+########### Modelo VAR con variables ex骻enas
+#Variables end骻enas
 dat.VAR <- cbind(dat$LREERS,dat$RIRR,dat$LRGDPPCR,dat$LPR2COMM5,dat$OPENY,dat$FBYA,dat$NFAOFPY)
 colnames(dat.VAR) <- c("LREERS","RIRR","LRGDPPCR","LPR2COMM5","OPENY","FBYA","NFAOFPY")
 
-#Variables ex贸genas
+#Variables ex骻enas
 dat.EXO <- cbind(dat$SDUMC1,dat$SDUMC2,dat$SDUMC3,dat$DUMRER1,dat$DUMRER2,dat$DUMFBYA,dat$DUMNFAOFPY)
 colnames(dat.EXO) <- c("SDUMC1","SDUMC2","SDUMC3","DUMRER1","DUMRER2","DUMFBYA","NFAOFPY")
 
@@ -43,7 +44,7 @@ dat.EXO=dat.EXO[,1:3]
 VAR.est <- vars::VAR(dat.VAR,lag.max=10, ic="AIC",type="const",exog=dat.EXO)
 summary(VAR.est)
 
-####### Modelo VAR sin variables ex贸genas:
+####### Modelo VAR sin variables ex骻enas:
 VAR.est2 <- vars::VAR(dat.VAR,lag.max=10, ic="AIC",type="const")
 summary(VAR.est2)
 

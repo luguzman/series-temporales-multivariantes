@@ -52,34 +52,30 @@ apply(X_train, 2, adf.test) #2 para especificar que lo queremos aplicar por colu
 # Todos los p-valores son > 0.05, hay que diferenciar las series
 
 ## Diferenciando todo la mts 
+# Dado que la diagnosis no fue correcta diferenciaremos nuevamente
 library(MTS)
 stnry = diffM(X_train)
 stnry2 = diffM(stnry)
 
 # Volviendo a hacer el test:
-apply(stnry, 2, adf.test)
 apply(stnry2, 2, adf.test)
 
 #Todos los p-valores son < 0.05, todas ya son estacionarias
 
-# Solución 2
-logdata = log(X_train)
-stnry = diffM(logdata)
-# Volviendo a hacer el test:
-apply(stnry, 2, adf.test)
+
 
 ####### VAR modeling
 
-plot.ts(stnry)
+plot.ts(stnry2)
 
 
 # Identificación del orden del modelo
 library(vars)
-VARselect(stnry, type = "none", lag.max = 10)
+VARselect(stnry2, type = "none", lag.max = 10)
 
 
 # Creando el modelo
-var.a <- vars::VAR(stnry,
+var.a <- vars::VAR(stnry2,
                    
                    lag.max = 10,
                    
@@ -125,11 +121,8 @@ x = DAX$DAX[,1]; x
 
 # Invirtiendo la diferenciación
 tail(X_train)
-tail(stnry)
-tail(logdata)
 
-x = exp(cumsum(x) + 8.693069)
-
+x = cumsum(x) + 5961.45
 
 plot.ts(x)
 
@@ -168,7 +161,5 @@ xyplot(xx, grid=TRUE, panel = function(xx, y, ...){
 
 # Como vemos si nos vamos demasiado lejos en el futuro se aplana la predicción
 
-### Evaluacion del modelo
-rmse=sqrt(mean((X_test[,1]-x)^2))
-rmse
+
 

@@ -1,20 +1,20 @@
 #################### Series de Tiempo Multivariantes
-####### Caso de Estudio: Datos macroecon√≥micos de Filipinas
+####### Caso de Estudio: Datos macroeconÛmicos de Filipinas
 ####### PASOS:
-#1. An√°lisis exploratorios de los datos.
+#1. An·lisis exploratorios de los datos.
 #2. Dividir la serie en conjuntos de entrenamiento y prueba.
 #3. Prueba de estacionariedad.
 #4. Transformar la serie de entrenamiento si es necesario. 
 #5. Construir un modelo VAR sobre las series transformadas.
 #6. Causalidad de Granger.
-#7. Diagn√≥stico del modelo.
-#8. Realizar pron√≥sticos utilizando el modelo finalmente elegido.
-#9. Transformaci√≥n inversa del pron√≥stico a la escala original.
-#10. Realizar una evaluaci√≥n del pron√≥stico.
+#7. DiagnÛstico del modelo.
+#8. Realizar pronÛsticos utilizando el modelo finalmente elegido.
+#9. TransformaciÛn inversa del pronÛstico a la escala original.
+#10. Realizar una evaluaciÛn del pronÛstico.
 
 
-####### Cargando los datos reales "Datos macroecon√≥micos de Filipinas"
-# Contiene 4 variables de series de tiempo de datos econ√≥micos
+####### Cargando los datos reales "Datos macroeconÛmicos de Filipinas"
+# Contiene 4 variables de series de tiempo de datos econÛmicos
 
 library(readr)
 mp = read_csv("sampleVAR.csv")
@@ -22,18 +22,18 @@ class(mp)
 head(mp)
 
 
-# Librer√≠a para el test ADF de estacionariedad
+# LibrerÌa para el test ADF de estacionariedad
 library(tseries)
 
 
-####### An√°lisis exploratorio
+####### An·lisis exploratorio
 # Convertir a objeto ts las dos series
 rgdp <- ts(mp$real_gdp_growth, start = c(1999,1), frequency = 4)
 psei <- ts(mp$psei, start = c(1999,1), frequency = 4)
 bsp <- ts(mp$bsp_rrp, start = c(1999,1), frequency = 4)
 unem <- ts(mp$unem, start = c(1999,1), frequency = 4)
 
-# Gr√°fico con plot:
+# Gr·fico con plot:
 dat.mv <- cbind(rgdp, psei, bsp, unem)
 plot(dat.mv )
 
@@ -59,11 +59,11 @@ stnry = diffM(X_train)
 # Volviendo a hacer el test:
 apply(stnry, 2, adf.test)
 
-# Ahora s√≠, todas son estacionarias
+# Ahora sÌ, todas son estacionarias
 
 
 #### MODELO VAR
-# Identificaci√≥n del orden del modelo
+# IdentificaciÛn del orden del modelo
 library(vars)
 VARselect(stnry, type = "none", lag.max = 10)
 
@@ -88,7 +88,7 @@ plot(mv.serial, names = "bsp")
 plot(mv.serial, names = "unem")
 
 
-######## Forecasting usando el modelo VAR (Hallando los pron√≥sticos)
+######## Forecasting usando el modelo VAR (Hallando los pronÛsticos)
 
 fcast = predict(var.a, n.ahead = 10)
 plot(fcast)
@@ -97,17 +97,20 @@ plot(fcast)
 rgdp_pred = fcast$fcst[1]; rgdp_pred 
 
 
-# Extrayendo la columna de pron√≥sticos
+# Extrayendo la columna de pronÛsticos
 x = rgdp_pred$rgdp[,1]; x
 
-######### Invirtiendo la diferenciaci√≥n
+######### Invirtiendo la diferenciaciÛn
+# Observamos cual es ˙ltimo valor que tomamos para training que en este caso es 7
+# ya que lo que hace cumsum es sumar el valor de la actual x + el ˙ltimo valor
+# Y recordemos que la diferenciaciÛn que aplicamos tal cual fue valor de X - X-1
 tail(X_train)
 
 x = cumsum(x) + 7
 
 plot.ts(x)
 
-# Combinando los datos reales y la predicci√≥n en una sola serie de tiempo
+# Combinando los datos reales y la predicciÛn en una sola serie de tiempo
 rgdpinv =ts(c(X_train[,1], x),
             start = c(1999,1), frequency = 4)
 
@@ -117,7 +120,7 @@ plot(rgdpinv)
 plot.ts(rgdpinv[50:80])
 
 
-# Plot avanzado con separaci√≥n visual entre lo real y lo pronosticado
+# Plot avanzado con separaciÛn visual entre lo real y lo pronosticado
 library(lattice)
 library(grid)
 library(zoo)
@@ -126,8 +129,8 @@ library(zoo)
 xx = zoo(rgdpinv[50:80])
 
 
-# En el par√°metro grid.clip ponemos la cantidad de observaciones que son reales dentro de las 
-# que hemos elegido. Hemos cogido 31 de las que 10 son pron√≥sticos, as√≠ que grid.clip ser√≠a 21-1
+# En el par·metro grid.clip ponemos la cantidad de observaciones que son reales dentro de las 
+# que hemos elegido. Hemos cogido 31 de las que 10 son pronÛsticos, asÌ que grid.clip serÌa 21-1
 
 xyplot(xx, grid=TRUE, panel = function(xx, y, ...){
   
@@ -137,7 +140,7 @@ xyplot(xx, grid=TRUE, panel = function(xx, y, ...){
   
   panel.xyplot(xx, y, col="green", ...) })
 
-# Como vemos si nos vamos demasiado lejos en el futuro se aplana la predicci√≥n
+# Como vemos si nos vamos demasiado lejos en el futuro se aplana la predicciÛn
 
 ### Evaluacion del modelo
 rmse=sqrt(mean((X_test[,1]-x)^2))
